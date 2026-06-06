@@ -5,8 +5,8 @@ import { NextResponse } from "next/server";
 export async function GET(
   req: Request,
   { params }: { params: { id: string } }
-) {
-  return new Promise((resolve) => {
+): Promise<Response> {
+  return new Promise<Response>((resolve) => {
     db.get(
       "SELECT * FROM stories WHERE id = ?",
       [params.id],
