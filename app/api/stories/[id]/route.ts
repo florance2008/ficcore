@@ -1,15 +1,17 @@
 import db from "@/lib/database";
 import { NextResponse } from "next/server";
 
-// GET single story (SAFE VERSION - بدون chapters فعلاً)
+// GET single story (SAFE VERSION - بدون تغییر logic)
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ): Promise<Response> {
+  const { id } = await context.params;
+
   return new Promise<Response>((resolve) => {
     db.get(
       "SELECT * FROM stories WHERE id = ?",
-      [params.id],
+      [id],
       (err, story) => {
         if (err) {
           return resolve(
