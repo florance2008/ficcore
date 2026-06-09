@@ -6,18 +6,22 @@ export async function GET(req: Request) {
   const { searchParams } = new URL(req.url);
   const storyId = searchParams.get("storyId");
 
-  return new Promise((resolve) => {
+  const chapters = await new Promise<any[]>((resolve) => {
     db.all(
       "SELECT * FROM chapters WHERE story_id = ? ORDER BY id ASC",
       [storyId],
       (err, rows) => {
-        resolve(
-          NextResponse.json({
-            chapters: rows || [],
-          })
-        );
+        if (err) {
+          resolve([]);
+          return;
+        }
+        resolve(rows || []);
       }
     );
+  });
+
+  return NextResponse.json({
+    chapters,
   });
 }
 
@@ -25,28 +29,22 @@ export async function GET(req: Request) {
 export async function POST(req: Request) {
   const body = await req.json();
 
-  return new Promise((resolve) => {
+  const id = await new Promise<number>((resolve) => {
     db.run(
       "INSERT INTO chapters (story_id, title, content) VALUES (?, ?, ?)",
       [body.storyId, body.title, body.content],
       function (err) {
         if (err) {
-          resolve(
-            NextResponse.json({
-              success: false,
-              error: err.message,
-            })
-          );
+          resolve(-1);
           return;
         }
-
-        resolve(
-          NextResponse.json({
-            success: true,
-            id: this.lastID,
-          })
-        );
+        resolve(this.lastID);
       }
     );
+  });
+
+  return NextResponse.json({
+    success: id !== -1,
+    id,
   });
 }
