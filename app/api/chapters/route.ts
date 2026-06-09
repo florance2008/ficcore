@@ -2,7 +2,7 @@ import db from "@/lib/database";
 import { NextResponse } from "next/server";
 
 // GET chapters by storyId
-export async function GET(req: Request) {
+export async function GET(req: Request): Promise<Response> {
   const { searchParams } = new URL(req.url);
   const storyId = searchParams.get("storyId");
 
@@ -20,13 +20,11 @@ export async function GET(req: Request) {
     );
   });
 
-  return NextResponse.json({
-    chapters,
-  });
+  return NextResponse.json({ chapters });
 }
 
 // POST new chapter
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   const body = await req.json();
 
   const id = await new Promise<number>((resolve) => {
